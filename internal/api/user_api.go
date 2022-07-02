@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"techytechster/digitaldexterity/internal/database"
 	"techytechster/digitaldexterity/internal/encryption"
@@ -30,24 +31,28 @@ func register(db *database.Database) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(RegisterPayload)
 		if err := c.Bind(payload); err != nil {
+			log.Printf("Failed to create, %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"created": false,
 				"error":   err.Error(),
 			})
 		} else if err = c.Validate(payload); err != nil {
+			log.Printf("Failed to validate payload, %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"created": false,
-				"error":   fmt.Sprintf("Expected Username (minimum 1 character) and Password (minimum 8 characters): %s", err.Error()),
+				"error":   fmt.Sprintf("Expected Username (minimum 1 character) and Password (minimum 8 characters): %s\n", err.Error()),
 			})
 		}
 		encryption := encryption.Encrypt(payload.Password)
 		err := db.CreateUser(payload.Username, encryption)
 		if err != nil {
+			log.Printf("Failed to create user, %s", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"created": false,
-				"error":   fmt.Sprintf("Failed to register: %s", err.Error()),
+				"error":   fmt.Sprintf("Failed to register: %s\n", err.Error()),
 			})
 		}
+		log.Printf("Created a new user, %s", payload.Username)
 		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"created": true,
 		})
@@ -58,21 +63,25 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(LoginPayload)
 		if err := c.Bind(payload); err != nil {
+			log.Printf("Failed to bind payload to login request, %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": err.Error(),
 			})
 		} else if err := c.Validate(payload); err != nil {
+			log.Printf("Failed to validate payload for login request, %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": err.Error(),
 			})
 		}
 		u := db.GetUser(payload.Username)
 		if u == nil {
+			log.Printf("Failed to get a user for requested username\n")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"error": "incorrect username/password",
 			})
 		}
 		if encryptedRes := encryption.Encrypt(payload.Password); bytes.Compare(encryptedRes, u.EncryptedPassword) != 0 {
+			log.Printf("Failed to authenticate, password incorrect\n")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"error": "incorrect username/password",
 			})
@@ -87,10 +96,12 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 		t, err := token.SignedString(jwtSecret)
 		if err != nil {
+			log.Printf("failed to generate a token: %s\n", err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error": err.Error(),
 			})
 		}
+		log.Printf("Successfully logged in: %s\n", u.Username)
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"Username": payload.Username,
 			"LoggedIn": true,
