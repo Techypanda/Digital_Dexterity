@@ -8,6 +8,8 @@ services:
       - .:/app/
     environment:
       - ENTR_INOTIFY_WORKAROUND=TRUE
-    command: ['']
+    env_file:
+      - .env
+    command: ['/app/cmd/api/hotReload.sh']
     ports:
       - '8080:8080'
