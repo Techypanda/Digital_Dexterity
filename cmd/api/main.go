@@ -52,10 +52,14 @@ func main() {
 	b := make([]byte, 1248)
 	rand.Read(b)
 	jwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
+	b = make([]byte, 1248)
+	rand.Read(b)
+	refreshJwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
 	api.NewAPI(api.APIConfig{
-		Port:      port,
-		Database:  db,
-		JWTSecret: jwtSecret,
-		SecretKey: secretKey,
+		Port:             port,
+		Database:         db,
+		JWTSecret:        jwtSecret,
+		JWTRefreshSecret: refreshJwtSecret,
+		SecretKey:        secretKey,
 	})
 }

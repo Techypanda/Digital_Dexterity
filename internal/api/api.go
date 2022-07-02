@@ -19,10 +19,11 @@ type (
 		validator *validator.Validate
 	}
 	APIConfig struct {
-		Port      string
-		Database  *database.Database
-		JWTSecret []byte
-		SecretKey string
+		Port             string
+		Database         *database.Database
+		JWTSecret        []byte
+		JWTRefreshSecret []byte
+		SecretKey        string
 	}
 )
 
@@ -58,7 +59,14 @@ func NewAPI(config APIConfig) {
 		})
 	})
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	User(e, config.Database, config.JWTSecret)
+	User(e, config.Database, config.JWTSecret, config.JWTRefreshSecret)
+	refresh := e.Group("/refresh")
+	refresh.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey:    config.JWTRefreshSecret,
+		Claims:        &UserTokenClaims{},
+		SigningMethod: "HS512",
+	}))
+	Refresh(refresh, config.Database, config.JWTSecret, config.JWTRefreshSecret)
 	r := e.Group("/api/v1")
 	r.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:    config.JWTSecret,
