@@ -37,12 +37,13 @@ func selfAssess(db *database.Database) func(c echo.Context) error {
 		token := c.Get("user").(*jwt.Token)
 		payload := new(ExternalAssessment)
 		if err := c.Bind(payload); err != nil {
+			log.Printf("failed to bind payload to self assessment: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"asssessedSelf": false,
 				"error":         err.Error(),
 			})
 		} else if err := c.Validate(payload); err != nil {
-			log.Println("failed to validate ")
+			log.Printf("failed to validate to self assessment: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"asssessedSelf": false,
 				"error":         fmt.Sprintf("Expected WillingnessToLearn SelfSufficientLearning ImprovingCapability InnovativeThinking GrowthMindset AwarenessOfSelfEfficacy ApplyingWhatTheyLearn Adaptability: %s", err.Error()),
@@ -51,11 +52,13 @@ func selfAssess(db *database.Database) func(c echo.Context) error {
 		claims := token.Claims.(*UserTokenClaims)
 		user := db.GetUser(claims.Username)
 		if user == nil {
+			log.Printf("fatal! a username is missing from db: %s\n", claims.Username)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":         "please contact admin, your username is gone",
 				"asssessedSelf": false,
 			})
 		} else {
+			log.Printf("adding self assessment to db\n")
 			err := db.AddSelfAssessment(*user, database.DigitalDexterityAssessment{
 				WillingnessToLearn:      payload.WillingnessToLearn,
 				SelfSufficientLearning:  payload.SelfSufficientLearning,
@@ -67,11 +70,13 @@ func selfAssess(db *database.Database) func(c echo.Context) error {
 				Adaptability:            payload.Adaptability,
 			})
 			if err != nil {
+				log.Printf("failed to create self assessment, %s\n", err.Error())
 				return c.JSON(http.StatusBadRequest, map[string]interface{}{
 					"error":         fmt.Sprintf("failed to create self assessment: %s", err.Error()),
 					"asssessedSelf": false,
 				})
 			} else {
+				log.Printf("successfully created self assessment\n")
 				return c.JSON(http.StatusCreated, map[string]interface{}{
 					"asssessedSelf": true,
 				})
@@ -84,12 +89,13 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		var payload ExternalAssessment
 		if err := c.Bind(&payload); err != nil {
-			log.Println("Fialed the bind")
+			log.Printf("failed to bind payload to external assessment: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"assessed": false,
 				"error":    err.Error(),
 			})
 		} else if err := c.Validate(payload); err != nil {
+			log.Printf("failed to validate to external assessment: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"assessed": false,
 				"error":    fmt.Sprintf("Expected WillingnessToLearn SelfSufficientLearning ImprovingCapability InnovativeThinking GrowthMindset AwarenessOfSelfEfficacy ApplyingWhatTheyLearn Adaptability Assessed: %s", err.Error()),
@@ -99,6 +105,7 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 		claims := token.Claims.(*UserTokenClaims)
 		user := db.GetUser(claims.Username)
 		if user == nil {
+			log.Printf("fatal! username is missing from db: %s\n", claims.Username)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":    "please contact admin, your username is gone",
 				"assessed": false,
@@ -106,12 +113,14 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 		}
 		assessing_user := db.GetUser(payload.Assessing)
 		if assessing_user == nil {
+			log.Printf("assessed user does not exist: %s\n", payload.Assessing)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":    "unknown user",
 				"assessed": false,
 			})
 		}
 		if assessing_user.ID == user.ID {
+			log.Printf("someone tried to assess themselves: %s\n", payload.Assessing)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":    "you cannot assess yourself",
 				"assessed": false,
@@ -128,11 +137,13 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 			Adaptability:            payload.Adaptability,
 		})
 		if err != nil {
+			log.Printf("failed to external assess: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error":    fmt.Sprintf("failed to create external assessment: %s", err.Error()),
 				"assessed": false,
 			})
 		} else {
+			log.Printf("externally assessed: %s\n", assessing_user.Username)
 			return c.JSON(http.StatusCreated, map[string]interface{}{
 				"assessed": true,
 			})
@@ -146,6 +157,7 @@ func getAssessments(db *database.Database) func(c echo.Context) error {
 		claims := token.Claims.(*UserTokenClaims)
 		user := db.GetUser(claims.Username)
 		if user == nil {
+			log.Printf("fatal! username is missing from db: %s\n", claims.Username)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":         "please contact admin, your username is gone",
 				"asssessedSelf": false,
@@ -154,11 +166,13 @@ func getAssessments(db *database.Database) func(c echo.Context) error {
 			selfAssessment, _ := db.GetSelfAssessment(*user)
 			externalAssessments := db.GetExternalAssessments(*user)
 			if selfAssessment != nil {
+				log.Printf("returning self assessments and external assessments for user: %s\n", claims.Username)
 				return c.JSON(http.StatusOK, map[string]interface{}{
 					"selfAssessment":      selfAssessment.DigitalDexterityAssessment,
 					"externalAssessments": externalAssessments,
 				})
 			} else {
+				log.Printf("returning external assessments for user: %s\n", claims.Username)
 				return c.JSON(http.StatusOK, map[string]interface{}{
 					"externalAssessments": externalAssessments,
 				})

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"techytechster/digitaldexterity/internal/database"
 	"time"
@@ -51,6 +52,7 @@ func NewAPI(config APIConfig) {
 	e := echo.New()
 	e.Validator = &SimpleValidator{validator: validator.New()}
 	e.GET("/", func(c echo.Context) error {
+		log.Println("❤️❤️❤️❤️ THUMP ❤️❤️❤️❤️ (HeartBeat Request)")
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"date": time.Now().Unix(),
 		})
