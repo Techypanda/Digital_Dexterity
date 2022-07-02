@@ -52,6 +52,10 @@ func (cv *SimpleValidator) Validate(i interface{}) error {
 func NewAPI(config APIConfig) {
 	e := echo.New()
 	e.Validator = &SimpleValidator{validator: validator.New()}
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20))) // 20 requests a second
+	e.Use(middleware.Recover())                                             // Recover From Panic
+	e.Use(middleware.Logger())                                              // Log basic HTTP traffic
+	// e.Use(middleware.CSRF()) // TODO: Use CSRF middleware
 	e.GET("/", func(c echo.Context) error {
 		log.Println("❤️❤️❤️❤️ THUMP ❤️❤️❤️❤️ (HeartBeat Request)")
 		return c.JSON(http.StatusOK, map[string]interface{}{
