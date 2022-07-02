@@ -25,5 +25,5 @@ func NewDatabase(config DatabaseConfig) (*Database, error) {
 	return &Database{db: db}, err
 }
 func (db *Database) Migrate() error {
-	return db.db.AutoMigrate(&User{}, &SelfAssessment{})
+	return db.db.AutoMigrate(&User{}, &SelfAssessment{}, &ExternalAssessment{})
 }
