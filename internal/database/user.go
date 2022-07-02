@@ -8,8 +8,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username          string `gorm:"unique;column:username" json:"username"`
-	EncryptedPassword []byte `gorm:"column:encrypted_password" json:"encrypted_password"`
+	Username          string          `gorm:"unique;column:username" json:"username"`
+	EncryptedPassword []byte          `gorm:"column:encrypted_password" json:"encrypted_password"`
+	SelfAssessment    *SelfAssessment // 1 -> 1 Relationship
 }
 
 func NewUser(username string, password []byte) *User {

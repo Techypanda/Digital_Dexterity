@@ -61,7 +61,7 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": err.Error(),
 			})
-		} else if err = c.Validate(payload); err != nil {
+		} else if err := c.Validate(payload); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": err.Error(),
 			})
@@ -100,6 +100,6 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 }
 
 func User(e *echo.Echo, db *database.Database, jwtSecret []byte) {
-	e.POST("/api/v1/register", register(db))
-	e.POST("/api/v1/login", login(db, jwtSecret))
+	e.POST("/register", register(db))
+	e.POST("/login", login(db, jwtSecret))
 }

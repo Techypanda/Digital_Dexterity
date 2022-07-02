@@ -19,9 +19,11 @@ type DatabaseConfig struct {
 
 func NewDatabase(config DatabaseConfig) (*Database, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/digitaldexterity?tls=%s&parseTime=true", config.Username, config.Password, config.IP, config.TLS)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	return &Database{db: db}, err
 }
 func (db *Database) Migrate() error {
-	return db.db.AutoMigrate(&User{})
+	return db.db.AutoMigrate(&User{}, &SelfAssessment{})
 }
