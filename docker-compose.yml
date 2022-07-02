@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+    privileged: true
+    volumes:
+      - .:/app/
+    environment:
+      - ENTR_INOTIFY_WORKAROUND=TRUE
+    command: ['']
+    ports:
+      - '8080:8080'
