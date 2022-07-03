@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"techytechster/digitaldexterity/internal/api"
 	"techytechster/digitaldexterity/internal/database"
 	"time"
@@ -22,6 +23,10 @@ func main() {
 	secretKey, exists := os.LookupEnv("secret_key")
 	if !exists {
 		panic("secret_key is not defined")
+	}
+	corsList, exists := os.LookupEnv("cors_list")
+	if !exists {
+		panic("cors_list is not defined")
 	}
 	dbUsername, exists := os.LookupEnv("db_username")
 	if !exists {
@@ -61,5 +66,6 @@ func main() {
 		JWTSecret:        jwtSecret,
 		JWTRefreshSecret: refreshJwtSecret,
 		SecretKey:        secretKey,
+		CORSList:         strings.Split(corsList, ","),
 	})
 }

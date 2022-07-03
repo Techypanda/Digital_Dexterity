@@ -8,6 +8,7 @@ services:
       - web:/app/web
     environment:
       - ENTR_INOTIFY_WORKAROUND=TRUE
+      - cors_list=http://localhost:3000
     env_file:
       - .env
     command: ['/app/cmd/api/hotReload.sh']
