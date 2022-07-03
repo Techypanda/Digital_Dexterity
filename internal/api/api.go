@@ -24,6 +24,7 @@ type (
 		JWTSecret        []byte
 		JWTRefreshSecret []byte
 		SecretKey        string
+		CORSList         []string
 	}
 )
 
@@ -55,6 +56,12 @@ func NewAPI(config APIConfig) {
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20))) // 20 requests a second
 	e.Use(middleware.Recover())                                             // Recover From Panic
 	e.Use(middleware.Logger())                                              // Log basic HTTP traffic
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{                  // CORS
+		AllowOrigins:     config.CORSList,
+		AllowMethods:     []string{echo.POST, echo.GET},
+		AllowCredentials: true,
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+	}))
 	// e.Use(middleware.CSRF()) // TODO: Use CSRF middleware
 	e.GET("/", func(c echo.Context) error {
 		log.Println("❤️❤️❤️❤️ THUMP ❤️❤️❤️❤️ (HeartBeat Request)")

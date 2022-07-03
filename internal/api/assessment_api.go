@@ -35,7 +35,7 @@ type ExternalAssessment struct {
 func selfAssess(db *database.Database) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		token := c.Get("user").(*jwt.Token)
-		payload := new(ExternalAssessment)
+		payload := new(AssessmentPayload)
 		if err := c.Bind(payload); err != nil {
 			log.Printf("failed to bind payload to self assessment: %s\n", err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
