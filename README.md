@@ -7,7 +7,7 @@ This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.c
 ## Environment Setup
 - db_password: The Password To Database
 - db_username: The Username To Database
-- db_address: The Databsae Address
+- db_address: The Database Address
 - secret_key: A Secret Key -> Deprecated
 
 ## Running Locally
