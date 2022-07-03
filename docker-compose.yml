@@ -3,9 +3,9 @@ services:
   api:
     build:
       context: .
-    privileged: true
     volumes:
       - .:/app/
+      - web:/app/web
     environment:
       - ENTR_INOTIFY_WORKAROUND=TRUE
     env_file:
@@ -13,3 +13,15 @@ services:
     command: ['/app/cmd/api/hotReload.sh']
     ports:
       - '8080:8080'
+  web:
+    build:
+      context: ./web/
+    volumes:
+      - ./web:/app/
+      - nodemodules:/app/node_modules
+    ports:
+      - '3000:3000'
+    command: ['pnpm', 'run', 'dev']
+volumes:
+  nodemodules: {} # Ignore local node modules
+  web: {} # Ignore web
