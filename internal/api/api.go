@@ -19,10 +19,11 @@ type (
 		validator *validator.Validate
 	}
 	APIConfig struct {
-		Port      string
-		Database  *database.Database
-		JWTSecret []byte
-		SecretKey string
+		Port             string
+		Database         *database.Database
+		JWTSecret        []byte
+		JWTRefreshSecret []byte
+		SecretKey        string
 	}
 )
 
@@ -51,6 +52,10 @@ func (cv *SimpleValidator) Validate(i interface{}) error {
 func NewAPI(config APIConfig) {
 	e := echo.New()
 	e.Validator = &SimpleValidator{validator: validator.New()}
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20))) // 20 requests a second
+	e.Use(middleware.Recover())                                             // Recover From Panic
+	e.Use(middleware.Logger())                                              // Log basic HTTP traffic
+	// e.Use(middleware.CSRF()) // TODO: Use CSRF middleware
 	e.GET("/", func(c echo.Context) error {
 		log.Println("❤️❤️❤️❤️ THUMP ❤️❤️❤️❤️ (HeartBeat Request)")
 		return c.JSON(http.StatusOK, map[string]interface{}{
@@ -58,7 +63,14 @@ func NewAPI(config APIConfig) {
 		})
 	})
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	User(e, config.Database, config.JWTSecret)
+	User(e, config.Database, config.JWTSecret, config.JWTRefreshSecret)
+	refresh := e.Group("/refresh")
+	refresh.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey:    config.JWTRefreshSecret,
+		Claims:        &UserTokenClaims{},
+		SigningMethod: "HS512",
+	}))
+	Refresh(refresh, config.Database, config.JWTSecret, config.JWTRefreshSecret)
 	r := e.Group("/api/v1")
 	r.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:    config.JWTSecret,

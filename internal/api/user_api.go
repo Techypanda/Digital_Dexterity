@@ -59,7 +59,7 @@ func register(db *database.Database) func(c echo.Context) error {
 	}
 }
 
-func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
+func login(db *database.Database, jwtSecret []byte, refreshSecret []byte) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(LoginPayload)
 		if err := c.Bind(payload); err != nil {
@@ -93,8 +93,23 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 				ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
 			},
 		}
+		refreshClaims := &UserTokenClaims{
+			u.ID,
+			u.Username,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			},
+		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+		rToken := jwt.NewWithClaims(jwt.SigningMethodHS512, refreshClaims)
 		t, err := token.SignedString(jwtSecret)
+		if err != nil {
+			log.Printf("failed to generate a token: %s\n", err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"error": err.Error(),
+			})
+		}
+		rT, err := rToken.SignedString(refreshSecret)
 		if err != nil {
 			log.Printf("failed to generate a token: %s\n", err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -103,14 +118,58 @@ func login(db *database.Database, jwtSecret []byte) func(c echo.Context) error {
 		}
 		log.Printf("Successfully logged in: %s\n", u.Username)
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"Username": payload.Username,
-			"LoggedIn": true,
-			"Token":    t,
+			"username":     payload.Username,
+			"loggedIn":     true,
+			"token":        t,
+			"refreshToken": rT,
 		})
 	}
 }
 
-func User(e *echo.Echo, db *database.Database, jwtSecret []byte) {
+func User(e *echo.Echo, db *database.Database, jwtSecret []byte, refreshSecret []byte) {
 	e.POST("/register", register(db))
-	e.POST("/login", login(db, jwtSecret))
+	e.POST("/login", login(db, jwtSecret, refreshSecret))
+}
+
+func Refresh(e *echo.Group, db *database.Database, jwtSecret []byte, refreshSecret []byte) {
+	e.GET("", func(c echo.Context) error {
+		token := c.Get("user").(*jwt.Token)
+		claims := token.Claims.(*UserTokenClaims)
+		user := db.GetUser(claims.Username)
+		claims = &UserTokenClaims{
+			user.ID,
+			user.Username,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
+			},
+		}
+		refreshClaims := &UserTokenClaims{
+			user.ID,
+			user.Username,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			},
+		}
+		token = jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+		rToken := jwt.NewWithClaims(jwt.SigningMethodHS512, refreshClaims)
+		t, err := token.SignedString(jwtSecret)
+		if err != nil {
+			log.Printf("failed to generate a token: %s\n", err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"error": err.Error(),
+			})
+		}
+		rT, err := rToken.SignedString(refreshSecret)
+		if err != nil {
+			log.Printf("failed to generate a token: %s\n", err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"error": err.Error(),
+			})
+		}
+		log.Printf("Successfully refreshed tokens for: %s\n", user.Username)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"token":        t,
+			"refreshToken": rT,
+		})
+	})
 }
