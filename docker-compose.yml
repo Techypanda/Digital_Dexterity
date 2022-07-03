@@ -3,13 +3,26 @@ services:
   api:
     build:
       context: .
-    privileged: true
     volumes:
       - .:/app/
+      - web:/app/web
     environment:
       - ENTR_INOTIFY_WORKAROUND=TRUE
+      - cors_list=http://localhost:3000
     env_file:
       - .env
     command: ['/app/cmd/api/hotReload.sh']
     ports:
       - '8080:8080'
+  web:
+    build:
+      context: ./web/
+    volumes:
+      - ./web:/app/
+      - nodemodules:/app/node_modules
+    ports:
+      - '3000:3000'
+    command: ['pnpm', 'run', 'dev']
+volumes:
+  nodemodules: {} # Ignore local node modules
+  web: {} # Ignore web
