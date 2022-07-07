@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: digitaldexterityapi-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/issuer: "letsencrypt-api"
+spec:
+  tls:
+  - hosts:
+    - api.digitaldexterity.techytechster.com
+    secretName: digitaldexterity-tls
+  rules:
+  - host: api.digitaldexterity.techytechster.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: visibilityreportapi-service
+            port:
+              number: 1323
