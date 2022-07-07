@@ -3,6 +3,7 @@ services:
   api:
     build:
       context: .
+      dockerfile: Dockerfile.development
     volumes:
       - .:/app/
       - web:/app/web
