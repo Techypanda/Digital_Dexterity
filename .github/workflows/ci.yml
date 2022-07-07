@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 concurrency:
   group: environment-${{ github.ref }}-${{ github.workflow }}
@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.production
+          file: {context}/Dockerfile.production
           platforms: linux/arm/v7
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
