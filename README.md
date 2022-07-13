@@ -4,12 +4,26 @@
 
 This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.com/planetscale-hackathon), it uses planetscale for database and golang for backend.
 
+## Branching Model
+[I am using a form of trunk based development](https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development#:~:text=In%20trunk%2Dbased%20development%2C%20developers,arrows)%20as%20soon%20as%20possible.)
+
 ## Environment Setup
+### API
 - db_password: The Password To Database
 - db_username: The Username To Database
 - db_address: The Databsae Address
 - secret_key: A Secret Key -> Deprecated
-
+### Infrastructure
+- db_username: The username to database
+- db_password: The password to database
+- db_address: The address to database
+- gh_username: The github username to authenticate with to Docker
+- gh_token: The github token (PAT) to authenticate with to Docker
+- app_name: What you are calling the application in kube context
+- image: The image to use for application
+- secrets_store: The name of secrets store in kube context
+- cors_list: A CSV list of all acceptable CORS
+- secret_key: A Secret Key -> Deprecated?
 ## Running Locally
 ### Prerequistes
 Please install:  

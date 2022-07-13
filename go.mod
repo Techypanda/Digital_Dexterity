@@ -10,8 +10,10 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/swaggo/echo-swagger v1.3.3 // indirect
-	github.com/swaggo/swag v1.8.3 // indirect
+	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.19.4
+	github.com/pulumi/pulumi/sdk/v3 v3.35.3
+	github.com/swaggo/echo-swagger v1.3.3
+	github.com/swaggo/swag v1.8.3
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20220630215102-69896b714898 // indirect
 	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
