@@ -9,7 +9,8 @@
 
 ## Purpose
 
-This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.com/planetscale-hackathon), it uses planetscale for database and golang for backend.
+This is a application you could feasibly deploy within a organization to have a metric called 'digital dexterity', this metric could be used to evaluate if your fellow colleagues are 'digitally dexterious' when compared against everyone else.  
+This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.com/planetscale-hackathon), it uses planetscale for database, golang for backend and react for frontend (Typescript).
 
 ## Branching Model
 [I am using a form of trunk based development](https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development)
