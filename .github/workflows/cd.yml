@@ -55,10 +55,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
       - name: Setup git user
         run: |
-          git config --global user.name "githubaction"
-          git config --global user.email "githubaction@github.com"
+          git config --global user.name 'Techypanda'
+          git config --global user.email 'techypanda@users.noreply.github.com'
       - uses: pnpm/action-setup@v2
         with:
           version: 6.32.9
