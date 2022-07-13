@@ -50,6 +50,8 @@ jobs:
           go-version: 1.18
       - name: Create KubeConfig
         run: echo "$KUBEBASE64" | base64 --decode > config
+        env:
+          KUBEBASE64: ${{ secrets.KUBEBASE64 }}
       - name: Check If created
         run: ls
       # - name: Deploy Kubernetes
