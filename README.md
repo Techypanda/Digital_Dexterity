@@ -4,6 +4,9 @@
 
 This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.com/planetscale-hackathon), it uses planetscale for database and golang for backend.
 
+## Branching Model
+[I am using a form of trunk based development](https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development#:~:text=In%20trunk%2Dbased%20development%2C%20developers,arrows)%20as%20soon%20as%20possible.)
+
 ## Environment Setup
 ### API
 - db_password: The Password To Database
