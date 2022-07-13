@@ -38,15 +38,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
+  kube:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image # Kubernete Env uses the docker image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
           go-version: 1.18
       - name: Deploy Kubernetes
         uses: pulumi/actions@v3
-        working-directory: ./cmd/infrastructure
         with:
           command: up
           stack-name: digitaldexterity
+          work-dir: cmd/infrastructure
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
