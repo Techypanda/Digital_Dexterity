@@ -38,3 +38,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Deploy Kubernetes
+        uses: pulumi/actions@v3
+        working-directory: ./cmd/infrastructure
+        with:
+          command: up
+          stack-name: digitaldexterity
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
