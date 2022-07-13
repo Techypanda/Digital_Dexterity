@@ -1,5 +1,8 @@
 # Digital Dexterity
 
+![Builds Successfully](https://github.com/Techypanda/Digital_Dexterity/actions/workflows/ci.yml/badge.svg)
+![Deploys Successfully](https://github.com/Techypanda/Digital_Dexterity/actions/workflows/cd.yml/badge.svg)
+
 ## See The Project
 - Frontend: [https://digitaldexterity.techytechster.com](https://digitaldexterity.techytechster.com)  
 - Rest API: [https://api.digitaldexterity.techytechster.com](https://api.digitaldexterity.techytechster.com)  
