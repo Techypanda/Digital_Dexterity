@@ -54,21 +54,22 @@ jobs:
           KUBEBASE64: ${{ secrets.KUBEBASE64 }}
       - name: Check If created
         run: pwd
-      # - name: Deploy Kubernetes
-      #   uses: pulumi/actions@v3
-      #   with:
-      #     command: up
-      #     stack-name: digitaldexterity
-      #     work-dir: cmd/infrastructure
-      #   env:
-      #     app_name: ${{ secrets.APP_NAME }}
-      #     cors_list: ${{ secrets.CORS_LIST }}
-      #     db_address: ${{ secrets.DB_ADDRESS }}
-      #     db_password: ${{ secrets.DB_PASSWORD }}
-      #     db_username: ${{ secrets.DB_USERNAME }}
-      #     gh_token: ${{ secrets.GH_TOKEN }}
-      #     gh_username: ${{ secrets.GH_USERNAME }}
-      #     image: ${{ secrets.IMAGE }}
-      #     secrets_store: ${{ secrets.SECRETS_STORE }}
-      #     secret_key: ${{ secrets.secret_key }}
-      #     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      - name: Deploy Kubernetes
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: digitaldexterity
+          work-dir: cmd/infrastructure
+        env:
+          KUBECONFIG: /home/runner/work/Digital_Dexterity/Digital_Dexterity/config
+          app_name: ${{ secrets.APP_NAME }}
+          cors_list: ${{ secrets.CORS_LIST }}
+          db_address: ${{ secrets.DB_ADDRESS }}
+          db_password: ${{ secrets.DB_PASSWORD }}
+          db_username: ${{ secrets.DB_USERNAME }}
+          gh_token: ${{ secrets.GH_TOKEN }}
+          gh_username: ${{ secrets.GH_USERNAME }}
+          image: ${{ secrets.IMAGE }}
+          secrets_store: ${{ secrets.SECRETS_STORE }}
+          secret_key: ${{ secrets.secret_key }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
