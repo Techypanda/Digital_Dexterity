@@ -1,5 +1,9 @@
 # Digital Dexterity
 
+## See The Project
+- Frontend: [https://digitaldexterity.techytechster.com](https://digitaldexterity.techytechster.com)  
+- Rest API: [https://api.digitaldexterity.techytechster.com](https://api.digitaldexterity.techytechster.com)  
+
 ## Purpose
 
 This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.com/planetscale-hackathon), it uses planetscale for database and golang for backend.
