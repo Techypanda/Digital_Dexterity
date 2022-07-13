@@ -53,7 +53,7 @@ jobs:
         env:
           KUBEBASE64: ${{ secrets.KUBEBASE64 }}
       - name: Check If created
-        run: ls
+        run: pwd
       # - name: Deploy Kubernetes
       #   uses: pulumi/actions@v3
       #   with:
