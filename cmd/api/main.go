@@ -53,10 +53,14 @@ func main() {
 		panic(fmt.Sprintf("failed to migrate db: %s", err.Error()))
 	}
 	b := make([]byte, 1248)
-	rand.Read(b)
+	if _, err = rand.Read(b); err != nil {
+		panic(err.Error())
+	}
 	jwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
 	b = make([]byte, 1248)
-	rand.Read(b)
+	if _, err = rand.Read(b); err != nil {
+		panic(err.Error())
+	}
 	refreshJwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
 	api.NewAPI(api.Config{
 		Port:             port,
