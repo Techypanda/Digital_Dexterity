@@ -4,9 +4,11 @@ import {useAssessments} from '../api/assessments';
 import {DigitalDexterityGraph} from '../components/landing/DigitalDexterityGraph';
 import {useNavigate} from 'react-router-dom';
 import {useState} from 'react';
+import {useUsername} from '../api/profile';
 
 export default function Landing(props: CommonProps) {
-  const {data, isLoading, isFetching, isError} = useAssessments();
+  const username = useUsername();
+  const {data, isLoading, isFetching, isError} = useAssessments(username);
   const [showAssessmentDialog, setShowAssessmentDialog] = useState(false);
   const navigate = useNavigate();
   return (
