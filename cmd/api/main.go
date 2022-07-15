@@ -1,24 +1,22 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 	"techytechster/digitaldexterity/internal/api"
 	"techytechster/digitaldexterity/internal/database"
-	"time"
 )
 
-const DEFAULT_PORT = "8080"
-const DEFAULT_TLS = "true"
+const DefaultPort = "8080"
+const DefaultTLS = "true"
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	port, exists := os.LookupEnv("port")
 	if !exists {
-		port = DEFAULT_PORT
+		port = DefaultPort
 	}
 	secretKey, exists := os.LookupEnv("secret_key")
 	if !exists {
@@ -45,7 +43,7 @@ func main() {
 		Username: dbUsername,
 		Password: dbPassword,
 		IP:       dbAddress,
-		TLS:      DEFAULT_TLS,
+		TLS:      DefaultTLS,
 	})
 	if err != nil {
 		panic(fmt.Sprintf("failed to setup db: %s", err.Error()))
@@ -60,7 +58,7 @@ func main() {
 	b = make([]byte, 1248)
 	rand.Read(b)
 	refreshJwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
-	api.NewAPI(api.APIConfig{
+	api.NewAPI(api.Config{
 		Port:             port,
 		Database:         db,
 		JWTSecret:        jwtSecret,

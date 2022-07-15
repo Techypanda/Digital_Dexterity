@@ -22,7 +22,7 @@ type LoginPayload struct {
 	Password string `json:"password" form:"username" query:"username" validate:"required"`
 }
 type UserTokenClaims struct {
-	UserId   uint   `json:"userID"`
+	UserID   uint   `json:"userID"`
 	Username string `json:"username"`
 	jwt.StandardClaims
 }

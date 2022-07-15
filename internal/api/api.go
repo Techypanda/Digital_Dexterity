@@ -18,7 +18,7 @@ type (
 	SimpleValidator struct {
 		validator *validator.Validate
 	}
-	APIConfig struct {
+	Config struct {
 		Port             string
 		Database         *database.Database
 		JWTSecret        []byte
@@ -50,7 +50,7 @@ func (cv *SimpleValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func NewAPI(config APIConfig) {
+func NewAPI(config Config) {
 	e := echo.New()
 	e.Validator = &SimpleValidator{validator: validator.New()}
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20))) // 20 requests a second

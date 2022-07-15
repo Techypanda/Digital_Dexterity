@@ -66,7 +66,6 @@ func (db *Database) GetSelfAssessment(user User) (*SelfAssessment, error) {
 	db.db.Where("user_id = ?", user.ID).First(&assessment)
 	if assessment.UserID != user.ID {
 		return nil, errors.New("there is no self assessment")
-	} else {
-		return &assessment, nil
 	}
+	return &assessment, nil
 }

@@ -75,12 +75,11 @@ func selfAssess(db *database.Database) func(c echo.Context) error {
 					"error":         fmt.Sprintf("failed to create self assessment: %s", err.Error()),
 					"asssessedSelf": false,
 				})
-			} else {
-				log.Printf("successfully created self assessment\n")
-				return c.JSON(http.StatusCreated, map[string]interface{}{
-					"asssessedSelf": true,
-				})
 			}
+			log.Printf("successfully created self assessment\n")
+			return c.JSON(http.StatusCreated, map[string]interface{}{
+				"asssessedSelf": true,
+			})
 		}
 	}
 }
@@ -111,22 +110,22 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 				"assessed": false,
 			})
 		}
-		assessing_user := db.GetUser(payload.Assessing)
-		if assessing_user == nil {
+		assessingUser := db.GetUser(payload.Assessing)
+		if assessingUser == nil {
 			log.Printf("assessed user does not exist: %s\n", payload.Assessing)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":    "unknown user",
 				"assessed": false,
 			})
 		}
-		if assessing_user.ID == user.ID {
+		if assessingUser.ID == user.ID {
 			log.Printf("someone tried to assess themselves: %s\n", payload.Assessing)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"error":    "you cannot assess yourself",
 				"assessed": false,
 			})
 		}
-		err := db.AddExternalAssessment(*user, *assessing_user, database.DigitalDexterityAssessment{
+		err := db.AddExternalAssessment(*user, *assessingUser, database.DigitalDexterityAssessment{
 			WillingnessToLearn:      payload.WillingnessToLearn,
 			SelfSufficientLearning:  payload.SelfSufficientLearning,
 			ImprovingCapability:     payload.ImprovingCapability,
@@ -143,7 +142,7 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 				"assessed": false,
 			})
 		} else {
-			log.Printf("externally assessed: %s\n", assessing_user.Username)
+			log.Printf("externally assessed: %s\n", assessingUser.Username)
 			return c.JSON(http.StatusCreated, map[string]interface{}{
 				"assessed": true,
 			})
