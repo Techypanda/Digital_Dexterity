@@ -53,7 +53,7 @@ func LoadDeploymentConfigFromEnviron() (*APIDeploymentConfiguration, error) {
 	return &config, nil
 }
 
-func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMap, config APIDeploymentConfiguration) error {
+func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMapInput, config APIDeploymentConfiguration) error {
 	_, err := appsv1.NewDeployment(ctx, "digitaldexapi-deployment", &appsv1.DeploymentArgs{
 		Spec: appsv1.DeploymentSpecArgs{
 			Selector: &metav1.LabelSelectorArgs{

@@ -48,7 +48,7 @@ func LoadAPISecretsFromEnviron() (*APISecretsConfig, error) {
 	return &config, nil
 }
 
-func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMap, secretsConfig APISecretsConfig) error {
+func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMapInput, secretsConfig APISecretsConfig) error {
 	_, err := corev1.NewSecret(ctx, "digitaldexapi-secrets", &corev1.SecretArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			Name:   pulumi.String("digitaldexapi-secrets"),
@@ -89,7 +89,7 @@ func NewGithubSecretConfig(ghToken string, ghUsername string) GithubSecretConfig
 	}
 }
 
-func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMap, config GithubSecretConfig) error {
+func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMapInput, config GithubSecretConfig) error {
 	_, err := corev1.NewSecret(ctx, "digitaldex-github-secret", &corev1.SecretArgs{
 		Type: pulumi.String("kubernetes.io/dockerconfigjson"),
 		Metadata: &metav1.ObjectMetaArgs{

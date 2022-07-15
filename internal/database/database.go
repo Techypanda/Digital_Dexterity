@@ -18,7 +18,13 @@ type Config struct {
 }
 
 func NewDatabase(config Config) (*Database, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/digitaldexterity?tls=%s&parseTime=true", config.Username, config.Password, config.IP, config.TLS)
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s)/digitaldexterity?tls=%s&parseTime=true",
+		config.Username,
+		config.Password,
+		config.IP,
+		config.TLS,
+	)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})

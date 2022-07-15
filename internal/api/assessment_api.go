@@ -57,30 +57,29 @@ func selfAssess(db *database.Database) func(c echo.Context) error {
 				"error":         "please contact admin, your username is gone",
 				"asssessedSelf": false,
 			})
-		} else {
-			log.Printf("adding self assessment to db\n")
-			err := db.AddSelfAssessment(*user, database.DigitalDexterityAssessment{
-				WillingnessToLearn:      payload.WillingnessToLearn,
-				SelfSufficientLearning:  payload.SelfSufficientLearning,
-				ImprovingCapability:     payload.ImprovingCapability,
-				InnovativeThinking:      payload.InnovativeThinking,
-				GrowthMindset:           payload.GrowthMindset,
-				AwarenessOfSelfEfficacy: payload.AwarenessOfSelfEfficacy,
-				ApplyingWhatTheyLearn:   payload.ApplyingWhatTheyLearn,
-				Adaptability:            payload.Adaptability,
-			})
-			if err != nil {
-				log.Printf("failed to create self assessment, %s\n", err.Error())
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"error":         fmt.Sprintf("failed to create self assessment: %s", err.Error()),
-					"asssessedSelf": false,
-				})
-			}
-			log.Printf("successfully created self assessment\n")
-			return c.JSON(http.StatusCreated, map[string]interface{}{
-				"asssessedSelf": true,
+		}
+		log.Printf("adding self assessment to db\n")
+		err := db.AddSelfAssessment(*user, database.DigitalDexterityAssessment{
+			WillingnessToLearn:      payload.WillingnessToLearn,
+			SelfSufficientLearning:  payload.SelfSufficientLearning,
+			ImprovingCapability:     payload.ImprovingCapability,
+			InnovativeThinking:      payload.InnovativeThinking,
+			GrowthMindset:           payload.GrowthMindset,
+			AwarenessOfSelfEfficacy: payload.AwarenessOfSelfEfficacy,
+			ApplyingWhatTheyLearn:   payload.ApplyingWhatTheyLearn,
+			Adaptability:            payload.Adaptability,
+		})
+		if err != nil {
+			log.Printf("failed to create self assessment, %s\n", err.Error())
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error":         fmt.Sprintf("failed to create self assessment: %s", err.Error()),
+				"asssessedSelf": false,
 			})
 		}
+		log.Printf("successfully created self assessment\n")
+		return c.JSON(http.StatusCreated, map[string]interface{}{
+			"asssessedSelf": true,
+		})
 	}
 }
 
@@ -141,12 +140,11 @@ func externalAssess(db *database.Database) func(c echo.Context) error {
 				"error":    fmt.Sprintf("failed to create external assessment: %s", err.Error()),
 				"assessed": false,
 			})
-		} else {
-			log.Printf("externally assessed: %s\n", assessingUser.Username)
-			return c.JSON(http.StatusCreated, map[string]interface{}{
-				"assessed": true,
-			})
 		}
+		log.Printf("externally assessed: %s\n", assessingUser.Username)
+		return c.JSON(http.StatusCreated, map[string]interface{}{
+			"assessed": true,
+		})
 	}
 }
 
@@ -161,22 +159,20 @@ func getAssessments(db *database.Database) func(c echo.Context) error {
 				"error":         "please contact admin, your username is gone",
 				"asssessedSelf": false,
 			})
-		} else {
-			selfAssessment, _ := db.GetSelfAssessment(*user)
-			externalAssessments := db.GetExternalAssessments(*user)
-			if selfAssessment != nil {
-				log.Printf("returning self assessments and external assessments for user: %s\n", claims.Username)
-				return c.JSON(http.StatusOK, map[string]interface{}{
-					"selfAssessment":      selfAssessment.DigitalDexterityAssessment,
-					"externalAssessments": externalAssessments,
-				})
-			} else {
-				log.Printf("returning external assessments for user: %s\n", claims.Username)
-				return c.JSON(http.StatusOK, map[string]interface{}{
-					"externalAssessments": externalAssessments,
-				})
-			}
 		}
+		selfAssessment, _ := db.GetSelfAssessment(*user)
+		externalAssessments := db.GetExternalAssessments(*user)
+		if selfAssessment != nil {
+			log.Printf("returning self assessments and external assessments for user: %s\n", claims.Username)
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"selfAssessment":      selfAssessment.DigitalDexterityAssessment,
+				"externalAssessments": externalAssessments,
+			})
+		}
+		log.Printf("returning external assessments for user: %s\n", claims.Username)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"externalAssessments": externalAssessments,
+		})
 	}
 }
 
