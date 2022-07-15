@@ -68,7 +68,11 @@ func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMapInput, secrets
 		StringData: pulumi.ToStringMap(secretsConfig.mappedSecrets),
 	})
 
-	return fmt.Errorf("failed to create api secrets: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to create api secrets: %w", err)
+	}
+
+	return nil
 }
 
 type GithubSecretConfig struct {
