@@ -41,7 +41,7 @@ func main() {
 		panic("db_address is not defined")
 	}
 	log.Println("Initializing Database")
-	db, err := database.NewDatabase(database.DatabaseConfig{
+	db, err := database.NewDatabase(database.Config{
 		Username: dbUsername,
 		Password: dbPassword,
 		IP:       dbAddress,
