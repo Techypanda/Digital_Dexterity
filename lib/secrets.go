@@ -116,7 +116,11 @@ func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMapInput, confi
 		Data: pulumi.ToStringMap(config.mappedSecret),
 	})
 
-	return fmt.Errorf("failed to create github secret: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to create github secret: %w", err)
+	}
+
+	return nil
 }
 
 func LoadGithubSecretsFromEnviron() (*GithubSecretConfig, error) {
