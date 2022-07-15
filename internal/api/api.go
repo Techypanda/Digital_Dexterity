@@ -20,12 +20,15 @@ type (
 		validator *validator.Validate
 	}
 	Config struct {
-		Port             string
-		Database         *database.Database
-		JWTSecret        []byte
-		JWTRefreshSecret []byte
-		SecretKey        string
-		CORSList         []string
+		Port               string
+		Database           *database.Database
+		JWTSecret          []byte
+		JWTRefreshSecret   []byte
+		SecretKey          string
+		CORSList           []string
+		StateStore         *database.StateStore
+		GithubClientID     string
+		GithubClientSecret string
 	}
 )
 
@@ -78,6 +81,7 @@ func NewAPI(config Config) {
 		})
 	})
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	GithubOAuth(e, config.StateStore, config.Database, config.GithubClientID, config.GithubClientSecret, config.JWTSecret, config.JWTRefreshSecret)
 	User(e, config.Database, config.JWTSecret, config.JWTRefreshSecret)
 	refresh.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:    config.JWTRefreshSecret,

@@ -11,21 +11,24 @@ import (
 )
 
 type APISecretsConfig struct {
-	DatabaseUsername string
-	DatabasePassword string
-	DatabaseAddress  string
-	mappedSecrets    map[string]string
+	DatabaseUsername   string
+	DatabasePassword   string
+	DatabaseAddress    string
+	GithubOAuthSecrets string
+	mappedSecrets      map[string]string
 }
 
-func NewAPISecretsConfig(dbUsername string, dbPassword string, dbAddress string) APISecretsConfig {
+func NewAPISecretsConfig(dbUsername string, dbPassword string, dbAddress string, githubOauth string) APISecretsConfig {
 	return APISecretsConfig{
-		DatabaseUsername: dbUsername,
-		DatabasePassword: dbPassword,
-		DatabaseAddress:  dbAddress,
+		DatabaseUsername:   dbUsername,
+		DatabasePassword:   dbPassword,
+		DatabaseAddress:    dbAddress,
+		GithubOAuthSecrets: githubOauth,
 		mappedSecrets: map[string]string{
-			"db_username": dbUsername,
-			"db_password": dbPassword,
-			"db_address":  dbAddress,
+			"db_username":  dbUsername,
+			"db_password":  dbPassword,
+			"db_address":   dbAddress,
+			"github_oauth": githubOauth,
 		},
 	}
 }
@@ -46,7 +49,12 @@ func LoadAPISecretsFromEnviron() (*APISecretsConfig, error) {
 		return nil, EnvironmentMisconfiguredError("undefined db_address")
 	}
 
-	config := NewAPISecretsConfig(dbUsername, dbPassword, dbAddress)
+	githubOAuth, found := os.LookupEnv("github_oauth")
+	if !found {
+		return nil, EnvironmentMisconfiguredError("undefined github_oauth")
+	}
+
+	config := NewAPISecretsConfig(dbUsername, dbPassword, dbAddress, githubOAuth)
 
 	return &config, nil
 }

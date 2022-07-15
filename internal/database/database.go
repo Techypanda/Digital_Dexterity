@@ -29,7 +29,11 @@ func NewDatabase(config Config) (*Database, error) {
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 
-	return &Database{db: db}, fmt.Errorf("failed to initialize database: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
+	}
+
+	return &Database{db: db}, nil
 }
 func (db *Database) Migrate() error {
 	if err := db.db.AutoMigrate(&User{}, &SelfAssessment{}, &ExternalAssessment{}); err != nil {

@@ -124,6 +124,15 @@ func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMapInput, conf
 									},
 								},
 								&corev1.EnvVarArgs{
+									Name: pulumi.String("github_oauth"),
+									ValueFrom: &corev1.EnvVarSourceArgs{
+										SecretKeyRef: &corev1.SecretKeySelectorArgs{
+											Name: pulumi.String(config.SecretsStore),
+											Key:  pulumi.String("github_oauth"),
+										},
+									},
+								},
+								&corev1.EnvVarArgs{
 									Name:  pulumi.String("cors_list"),
 									Value: pulumi.String(config.CorsList),
 								},
