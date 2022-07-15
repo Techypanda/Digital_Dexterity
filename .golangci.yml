@@ -36,7 +36,6 @@ linters:
     - exportloopref
     - forbidigo
     - forcetypeassert
-    - funlen
     - gci
     - gochecknoglobals
     - gochecknoinits
@@ -105,3 +104,9 @@ linters:
     - whitespace
     - wrapcheck
     - wsl
+
+severity:
+  rules:
+    - linters:
+      - godox
+      severity: warning
