@@ -43,6 +43,7 @@ jobs:
           db_username: ${{ secrets.DB_USERNAME }}
           gh_token: ${{ secrets.GH_TOKEN }}
           gh_username: ${{ secrets.GH_USERNAME }}
+          github_oauth: ${{ secrets.GH_OAUTH }}
           image: ${{ secrets.IMAGE }}
           secrets_store: ${{ secrets.SECRETS_STORE }}
           secret_key: ${{ secrets.secret_key }}

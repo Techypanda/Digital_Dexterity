@@ -7,6 +7,7 @@ import Page from './pages/Page';
 import Assess from './pages/Assess';
 import {Unauthenticated} from './pages/Unauthenticated';
 import AssessSelf from './pages/AssessSelf';
+import OAuth from './pages/OAuth';
 
 export function AuthenticationContext(props: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -30,7 +31,12 @@ function App() {
             <Route path="*" element={<Page to={<Landing />} />} />
           </Routes>
         </BrowserRouter> :
-        <Unauthenticated />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/oauth" element={<OAuth />} />
+            <Route path="*" element={<Unauthenticated />} />
+          </Routes>
+        </BrowserRouter>
       }
     </>
   );

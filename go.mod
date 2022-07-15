@@ -7,6 +7,7 @@ require (
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/mattn/go-colorable v0.1.12 // indirect

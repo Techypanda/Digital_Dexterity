@@ -37,7 +37,7 @@ linters:
     - forcetypeassert
     # - gochecknoglobals
     - gochecknoinits
-    - gocognit
+    # - gocognit
     - goconst
     - gocritic
     - gocyclo

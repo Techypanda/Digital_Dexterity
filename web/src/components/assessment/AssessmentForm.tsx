@@ -3,6 +3,7 @@ import {HTTPError} from 'ky';
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {useNewAssessment} from '../../api/assessments';
+import {useUsername} from '../../api/profile';
 
 export default function AssessmentForm(props: { self?: boolean }) {
   const [who, setWho] = useState('');
@@ -15,7 +16,8 @@ export default function AssessmentForm(props: { self?: boolean }) {
   const [applyingWhatTheyLearn, setApplyingWhatTheyLearn] = useState(50);
   const [adaptability, setAdaptability] = useState(50);
   const [error, setError] = useState('');
-  const {selfAssessment, externalAssessment} = useNewAssessment();
+  const username = useUsername();
+  const {selfAssessment, externalAssessment} = useNewAssessment(username);
   const navigate = useNavigate();
   async function doAssessmentCreation() {
     if (!props.self && who === '') {

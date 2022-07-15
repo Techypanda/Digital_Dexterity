@@ -58,6 +58,15 @@ func main() {
 		panic(fmt.Sprintf("failed to setup db: %s", err.Error()))
 	}
 
+	githubOAuth, exists := os.LookupEnv("github_oauth")
+	if !exists {
+		panic("github_oauth is not defined")
+	}
+
+	githubCredentials := strings.Split(githubOAuth, ":")
+
+	stateStore := database.NewStateStore()
+
 	log.Println("Migrating Database")
 
 	if err = db.Migrate(); err != nil {
@@ -79,11 +88,14 @@ func main() {
 	refreshJwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
 
 	api.NewAPI(api.Config{
-		Port:             port,
-		Database:         db,
-		JWTSecret:        jwtSecret,
-		JWTRefreshSecret: refreshJwtSecret,
-		SecretKey:        secretKey,
-		CORSList:         strings.Split(corsList, ","),
+		Port:               port,
+		Database:           db,
+		JWTSecret:          jwtSecret,
+		JWTRefreshSecret:   refreshJwtSecret,
+		SecretKey:          secretKey,
+		CORSList:           strings.Split(corsList, ","),
+		StateStore:         stateStore,
+		GithubClientID:     githubCredentials[0],
+		GithubClientSecret: githubCredentials[1],
 	})
 }

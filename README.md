@@ -21,6 +21,11 @@ This is a webapp written for [Planetscale Hackathon](https://townhall.hashnode.c
 - db_username: The Username To Database
 - db_address: The Databsae Address
 - secret_key: A Secret Key -> Deprecated
+- github_oauth: Secret for github auth in this format: githubClientID:githubClientSecret
+### Frontend
+- VITE_API_URI=http://address_of_api.com/
+- VITE_GITHUB_CLIENT_ID=github_client_id
+- VITE_GITHUB_REDIRECT=http://address_of_api.com/oauth
 ### Infrastructure
 - db_username: The username to database
 - db_password: The password to database

@@ -1,8 +1,9 @@
-import {Alert, Box, Button, Divider, Paper, TextField, Typography} from '@mui/material';
+import {Alert, Box, Button, Divider, IconButton, Paper, TextField, Typography} from '@mui/material';
 import {CommonProps} from '@mui/material/OverridableComponent';
 import {useContext, useState} from 'react';
-import {authContext, useAuth} from '../api/auth';
+import {authContext, useGithubAuthRequest, useAuth} from '../api/auth';
 import {HTTPError} from 'ky';
+import {GitHub} from '@mui/icons-material';
 
 export function Unauthenticated(props: CommonProps) {
   const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ export function Unauthenticated(props: CommonProps) {
   const [success, setSuccess] = useState('');
   const {login, register} = useAuth();
   const {setAuthenticated} = useContext(authContext);
+  const beginGithubAuth = useGithubAuthRequest();
   async function doLogin() {
     try {
       setLoading(true);
@@ -60,6 +62,13 @@ export function Unauthenticated(props: CommonProps) {
           <Box p={2}>
             <Button disabled={loading} sx={{mr: 2}} onClick={() => doRegister()}>Register</Button>
             <Button disabled={loading} onClick={() => doLogin()}>Login</Button>
+          </Box>
+          <Divider />
+          <Box p={2}>
+            <Typography variant="subtitle2">Or Login With These Providers</Typography>
+            <IconButton onClick={() => beginGithubAuth()} >
+              <GitHub />
+            </IconButton>
           </Box>
         </Paper>
       </Box>
