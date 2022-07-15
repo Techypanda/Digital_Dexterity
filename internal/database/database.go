@@ -28,8 +28,13 @@ func NewDatabase(config Config) (*Database, error) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
-	return &Database{db: db}, err
+
+	return &Database{db: db}, fmt.Errorf("failed to initialize database: %w", err)
 }
 func (db *Database) Migrate() error {
-	return db.db.AutoMigrate(&User{}, &SelfAssessment{}, &ExternalAssessment{})
+	if err := db.db.AutoMigrate(&User{}, &SelfAssessment{}, &ExternalAssessment{}); err != nil {
+		return fmt.Errorf("failed to migrate: %w", err)
+	}
+
+	return nil
 }

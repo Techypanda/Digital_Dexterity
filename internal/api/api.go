@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "github.com/swaggo/echo-swagger/example/docs" // swagger needs this
+	"golang.org/x/time/rate"
 )
 
 type (
@@ -45,18 +46,24 @@ type (
 
 func (cv *SimpleValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
-		return err
+		return fmt.Errorf("failed validation: %w", err)
 	}
+
 	return nil
 }
 
+var RateLimitPerSecond float64 = 20
+
 func NewAPI(config Config) {
 	e := echo.New()
+	refresh := e.Group("/refresh")
+	r := e.Group("/api/v1")
+
 	e.Validator = &SimpleValidator{validator: validator.New()}
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20))) // 20 requests a second
-	e.Use(middleware.Recover())                                             // Recover From Panic
-	e.Use(middleware.Logger())                                              // Log basic HTTP traffic
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{                  // CORS
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(RateLimitPerSecond)))) // 20 requests a second
+	e.Use(middleware.Recover())                                                                         // Recover From Panic
+	e.Use(middleware.Logger())                                                                          // Log basic HTTP traffic
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{                                              // CORS
 		AllowOrigins:     config.CORSList,
 		AllowMethods:     []string{echo.POST, echo.GET},
 		AllowCredentials: true,
@@ -65,20 +72,19 @@ func NewAPI(config Config) {
 	// e.Use(middleware.CSRF()) // TODO: Use CSRF middleware
 	e.GET("/", func(c echo.Context) error {
 		log.Println("❤️❤️❤️❤️ THUMP ❤️❤️❤️❤️ (HeartBeat Request)")
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"date": time.Now().Unix(),
 		})
 	})
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	User(e, config.Database, config.JWTSecret, config.JWTRefreshSecret)
-	refresh := e.Group("/refresh")
 	refresh.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:    config.JWTRefreshSecret,
 		Claims:        &UserTokenClaims{},
 		SigningMethod: "HS512",
 	}))
 	Refresh(refresh, config.Database, config.JWTSecret, config.JWTRefreshSecret)
-	r := e.Group("/api/v1")
 	r.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:    config.JWTSecret,
 		Claims:        &UserTokenClaims{},

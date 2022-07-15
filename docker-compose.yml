@@ -31,7 +31,7 @@ services:
       - .:/app
       - web:/app/web
     working_dir: /app
-    command: ['go mod tidy && golangci-lint run -v']
+    command: ['./lint.sh']
 volumes:
   nodemodules: {} # Ignore local node modules
   web: {} # Ignore web

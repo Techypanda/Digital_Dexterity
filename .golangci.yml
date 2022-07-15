@@ -18,7 +18,7 @@ linters:
     - bodyclose
     - containedctx
     - contextcheck
-    - cyclop
+    # - cyclop
     - deadcode
     - decorder
     - depguard
@@ -31,13 +31,11 @@ linters:
     - errorlint
     - execinquery
     - exhaustive
-    - exhaustivestruct
-    - exhaustruct
+    # - exhaustruct
     - exportloopref
     - forbidigo
     - forcetypeassert
-    - gci
-    - gochecknoglobals
+    # - gochecknoglobals
     - gochecknoinits
     - gocognit
     - goconst
@@ -49,7 +47,6 @@ linters:
     - gofmt
     - goheader
     - goimports
-    - golint
     - gomnd
     - gomoddirectives
     - gomodguard
@@ -61,12 +58,9 @@ linters:
     - ifshort
     - importas
     - ineffassign
-    - interfacer
     - ireturn
-    - lll
     - maintidx
     - makezero
-    - maligned
     - misspell
     - nakedret
     - nestif
@@ -83,12 +77,11 @@ linters:
     - promlinter
     - revive
     - rowserrcheck
-    - scopelint
     - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck
-    - tagliatelle
+    # - tagliatelle
     - tenv
     - testpackage
     - thelper
@@ -98,10 +91,10 @@ linters:
     - unparam
     - unused
     - varcheck
-    - varnamelen
+    # - varnamelen
     - wastedassign
     - whitespace
-    - wrapcheck
+    # - wrapcheck
     - wsl
 
 severity:
