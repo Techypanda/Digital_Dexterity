@@ -24,6 +24,14 @@ services:
     ports:
       - '3000:3000'
     command: ['pnpm', 'run', 'dev']
+  golanglinter:
+    profiles: ["lint"]
+    image: golangci/golangci-lint:v1.46.2
+    volumes:
+      - .:/app
+      - web:/app/web
+    working_dir: /app
+    command: ['go mod tidy && golangci-lint run -v']
 volumes:
   nodemodules: {} # Ignore local node modules
   web: {} # Ignore web
