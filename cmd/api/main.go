@@ -87,6 +87,8 @@ func main() {
 
 	refreshJwtSecret := []byte(fmt.Sprintf("%x", b)[:1248])
 
+	log.Println("configured cors list: ", corsList)
+
 	api.NewAPI(api.Config{
 		Port:               port,
 		Database:           db,
