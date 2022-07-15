@@ -22,13 +22,17 @@ type StateStore struct {
 
 func checkExpiredStates(store *StateStore) {
 	store.mu.Lock()
+
 	var validStates []State
+
 	for _, state := range store.States {
 		if time.Now().Unix() < state.TTL {
 			validStates = append(validStates, state)
 		}
 	}
+
 	store.States = validStates
+
 	store.mu.Unlock()
 }
 
@@ -36,6 +40,7 @@ func recursivelyCheckExpiredStates(store *StateStore) {
 	log.Println("Checking For Expired States")
 	checkExpiredStates(store)
 	time.Sleep(time.Minute)
+
 	go recursivelyCheckExpiredStates(store)
 }
 
@@ -74,7 +79,7 @@ func (store *StateStore) GetStates() []State {
 var ErrStateNotValid = errors.New("that state is either not in my store or has expired")
 
 func (store *StateStore) GetState(secretVal string) (*State, error) {
-	var state *State = nil
+	var state *State
 
 	store.mu.Lock()
 
@@ -85,12 +90,14 @@ func (store *StateStore) GetState(secretVal string) (*State, error) {
 	for _, currState := range states {
 		isStateAndNotExpired := currState.StateSecret == secretVal && time.Now().Unix() < currState.TTL
 		if isStateAndNotExpired {
-			state = &currState
+			copiedState := currState
+			state = &copiedState
 		}
 	}
 
 	if state == nil {
 		return nil, ErrStateNotValid
 	}
+
 	return state, nil
 }

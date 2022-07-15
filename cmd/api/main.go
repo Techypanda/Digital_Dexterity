@@ -62,6 +62,7 @@ func main() {
 	if !exists {
 		panic("github_oauth is not defined")
 	}
+
 	githubCredentials := strings.Split(githubOAuth, ":")
 
 	stateStore := database.NewStateStore()

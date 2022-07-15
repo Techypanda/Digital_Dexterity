@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -218,8 +219,15 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 
 		// Step 1: Check State
 
+		_, err := stateStore.GetState(payload.State)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": "bad state",
+			})
+		}
+
 		// Step 2: Post Github
-		req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", nil)
+		req, err := http.NewRequestWithContext(context.Background(), "POST", "https://github.com/login/oauth/access_token", nil)
 		if err != nil {
 			log.Println("failed to create request to github - ", err.Error())
 
@@ -253,15 +261,26 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 			})
 		}
 
+		defer resp.Body.Close()
+
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Println("failed to read body of github response - ", err.Error())
+
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": "failed to read body of github response",
 			})
 		}
+
 		var response GithubResponse
-		json.Unmarshal(body, &response)
+
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": "failed to unmarshal github response",
+			})
+		}
+
 		githubResponseNotEmpty := response.AccessToken != "" && response.Scope != "" && response.TokenType != ""
 		if !githubResponseNotEmpty {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -270,7 +289,7 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 		}
 
 		// Step 3: Use Access Token To Construct A User
-		req, err = http.NewRequest("GET", "https://api.github.com/user", nil)
+		req, err = http.NewRequestWithContext(context.Background(), "GET", "https://api.github.com/user", nil)
 		if err != nil {
 			log.Println("failed to connect to api.github.com/user - ", err.Error())
 
@@ -278,9 +297,11 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 				"error": "failed to connect to api.github.com",
 			})
 		}
+
 		req.Header.Add("Authorization", fmt.Sprintf("token %s", response.AccessToken))
 		req.Header.Add("Accept", "application/json")
 		resp, err = client.Do(req)
+
 		if err != nil {
 			log.Println("failed to auth to api.github.com/profile - ", err.Error())
 
@@ -288,6 +309,9 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 				"error": "failed to auth to api.github.com/profile",
 			})
 		}
+
+		defer resp.Body.Close()
+
 		body, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Println("failed to read body of github response - ", err.Error())
@@ -296,8 +320,15 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 				"error": "failed to read body of github response",
 			})
 		}
+
 		var userResponse GithubMeResponse
-		json.Unmarshal(body, &userResponse)
+
+		err = json.Unmarshal(body, &userResponse)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": "failed to unmarshal github response",
+			})
+		}
 
 		// Step 4: Check If User Exists, if so return the jwts
 		user := database.GetGithubUser(userResponse.ID)
@@ -310,6 +341,7 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 					"error": "failed to generate tokens",
 				})
 			}
+
 			return c.JSON(http.StatusOK, tokenPair)
 		}
 
@@ -322,6 +354,7 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 				"error": "failed to create github user",
 			})
 		}
+
 		user = database.GetGithubUser(userResponse.ID)
 		if user != nil {
 			tokenPair, err := generateTokenPair(user, jwtSecret, refreshSecret)
@@ -332,8 +365,10 @@ func githubLogin(stateStore *database.StateStore, database *database.Database, g
 					"error": "failed to generate tokens",
 				})
 			}
+
 			return c.JSON(http.StatusOK, tokenPair)
 		}
+
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": "user was created but failed to login, please try to relogin",
 		})
@@ -364,12 +399,14 @@ func generateTokenPair(user *database.User, jwtSecret []byte, refreshSecret []by
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	rToken := jwt.NewWithClaims(jwt.SigningMethodHS512, refreshClaims)
+
 	t, err := token.SignedString(jwtSecret)
 	if err != nil {
 		log.Printf("failed to generate a token: %s\n", err.Error())
 
 		return nil, ErrTokenGeneration
 	}
+
 	rT, err := rToken.SignedString(refreshSecret)
 	if err != nil {
 		log.Printf("failed to generate a token: %s\n", err.Error())

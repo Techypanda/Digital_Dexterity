@@ -51,6 +51,7 @@ func (db *Database) NewGithubUser(username string, githubID uint64) error {
 		GithubID:          githubID,
 	}
 	result := db.db.Create(user)
+
 	return result.Error
 }
 
