@@ -21,22 +21,30 @@ func NewUser(username string, password []byte) *User {
 	}
 }
 
+var ErrUsernameTaken = errors.New("username is already taken")
+
 func (db *Database) CreateUser(username string, password []byte) error {
-	u := new(User)
-	db.db.Model(&User{}).Where(&User{Username: username}).First(u)
-	if u.Username != "" {
-		return errors.New("username is already taken")
+	user := new(User)
+
+	db.db.Model(&User{}).Where(&User{Username: username}).First(user)
+
+	if user.Username != "" {
+		return ErrUsernameTaken
 	}
-	u = NewUser(username, password)
-	result := db.db.Create(u)
+
+	user = NewUser(username, password)
+	result := db.db.Create(user)
+
 	return result.Error
 }
 
 func (db *Database) GetUser(username string) *User {
-	u := new(User)
-	db.db.Model(&User{}).Where(&User{Username: username}).First(u)
-	if u.Username == "" {
+	user := new(User)
+	db.db.Model(&User{}).Where(&User{Username: username}).First(user)
+
+	if user.Username == "" {
 		return nil
 	}
-	return u
+
+	return user
 }

@@ -2,7 +2,6 @@ package lib
 
 import (
 	b64 "encoding/base64"
-	"errors"
 	"fmt"
 	"os"
 
@@ -34,21 +33,25 @@ func NewAPISecretsConfig(dbUsername string, dbPassword string, dbAddress string)
 func LoadAPISecretsFromEnviron() (*APISecretsConfig, error) {
 	dbUsername, found := os.LookupEnv("db_username")
 	if !found {
-		return nil, errors.New("undefined db_username")
+		return nil, EnvironmentMisconfiguredError("undefined db_username")
 	}
+
 	dbPassword, found := os.LookupEnv("db_password")
 	if !found {
-		return nil, errors.New("undefined db_password")
+		return nil, EnvironmentMisconfiguredError("undefined db_password")
 	}
+
 	dbAddress, found := os.LookupEnv("db_address")
 	if !found {
-		return nil, errors.New("undefined db_address")
+		return nil, EnvironmentMisconfiguredError("undefined db_address")
 	}
+
 	config := NewAPISecretsConfig(dbUsername, dbPassword, dbAddress)
+
 	return &config, nil
 }
 
-func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMap, secretsConfig APISecretsConfig) error {
+func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMapInput, secretsConfig APISecretsConfig) error {
 	_, err := corev1.NewSecret(ctx, "digitaldexapi-secrets", &corev1.SecretArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			Name:   pulumi.String("digitaldexapi-secrets"),
@@ -56,7 +59,8 @@ func NewAPISecrets(ctx *pulumi.Context, appLabels pulumi.StringMap, secretsConfi
 		},
 		StringData: pulumi.ToStringMap(secretsConfig.mappedSecrets),
 	})
-	return err
+
+	return fmt.Errorf("failed to create api secrets: %w", err)
 }
 
 type GithubSecretConfig struct {
@@ -80,6 +84,7 @@ func NewGithubSecretConfig(ghToken string, ghUsername string) GithubSecretConfig
 	}
 	`, encodedUP)
 	encodedJSON := b64.StdEncoding.EncodeToString([]byte(unencodedJSON))
+
 	return GithubSecretConfig{
 		GHToken:    ghToken,
 		GHUsername: ghUsername,
@@ -89,7 +94,7 @@ func NewGithubSecretConfig(ghToken string, ghUsername string) GithubSecretConfig
 	}
 }
 
-func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMap, config GithubSecretConfig) error {
+func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMapInput, config GithubSecretConfig) error {
 	_, err := corev1.NewSecret(ctx, "digitaldex-github-secret", &corev1.SecretArgs{
 		Type: pulumi.String("kubernetes.io/dockerconfigjson"),
 		Metadata: &metav1.ObjectMetaArgs{
@@ -98,18 +103,22 @@ func NewGithubSecret(ctx *pulumi.Context, appLabels pulumi.StringMap, config Git
 		},
 		Data: pulumi.ToStringMap(config.mappedSecret),
 	})
-	return err
+
+	return fmt.Errorf("failed to create github secret: %w", err)
 }
 
 func LoadGithubSecretsFromEnviron() (*GithubSecretConfig, error) {
 	ghUsername, found := os.LookupEnv("gh_username")
 	if !found {
-		return nil, errors.New("gh_username is undefined")
+		return nil, EnvironmentMisconfiguredError("gh_username is undefined")
 	}
+
 	ghToken, found := os.LookupEnv("gh_token")
 	if !found {
-		return nil, errors.New("gh_token is undefined")
+		return nil, EnvironmentMisconfiguredError("gh_token is undefined")
 	}
+
 	config := NewGithubSecretConfig(ghToken, ghUsername)
+
 	return &config, nil
 }

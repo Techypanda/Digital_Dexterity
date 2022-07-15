@@ -1,8 +1,9 @@
 package lib
 
 import (
-	"errors"
+	"fmt"
 	"os"
+	"strconv"
 
 	appsv1 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/apps/v1"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/core/v1"
@@ -11,49 +12,68 @@ import (
 )
 
 type APIDeploymentConfiguration struct {
-	Name         string
-	Image        string
-	SecretsStore string
-	CorsList     string
-	SecretKey    string
+	Name          string
+	Image         string
+	SecretsStore  string
+	CorsList      string
+	SecretKey     string
+	ContainerPort int
 }
 
-func NewAPIDeploymentConfiguration(name string, image string, secretStore string, corsList string, secretKey string) APIDeploymentConfiguration {
+func NewAPIDeploymentConfiguration(name string, image string, secretStore string, corsList string, secretKey string, containerPort int) APIDeploymentConfiguration {
 	return APIDeploymentConfiguration{
-		Name:         name,
-		Image:        image,
-		SecretsStore: secretStore,
-		CorsList:     corsList,
-		SecretKey:    secretKey,
+		Name:          name,
+		Image:         image,
+		SecretsStore:  secretStore,
+		CorsList:      corsList,
+		SecretKey:     secretKey,
+		ContainerPort: containerPort,
 	}
 }
+
+var FallbackPort = 8080
 
 func LoadDeploymentConfigFromEnviron() (*APIDeploymentConfiguration, error) {
-	appName, found := os.LookupEnv("app_name")
-	if !found {
-		return nil, errors.New("app_name is undefined")
+	var appName, image, secretsStore, corsList, secretKey, containerPortEnv string
+
+	var found bool
+
+	containerPort := FallbackPort
+
+	if appName, found = os.LookupEnv("app_name"); !found {
+		return nil, EnvironmentMisconfiguredError("app_name is undefined")
 	}
-	image, found := os.LookupEnv("image")
-	if !found {
-		return nil, errors.New("image is undefined")
+
+	if image, found = os.LookupEnv("image"); !found {
+		return nil, EnvironmentMisconfiguredError("image is undefined")
 	}
-	secretsStore, found := os.LookupEnv("secrets_store")
-	if !found {
-		return nil, errors.New("secrets_store is undefined")
+
+	if secretsStore, found = os.LookupEnv("secrets_store"); !found {
+		return nil, EnvironmentMisconfiguredError("secrets_store is undefined")
 	}
-	corsList, found := os.LookupEnv("cors_list")
-	if !found {
-		return nil, errors.New("cors_list is undefined")
+
+	if corsList, found = os.LookupEnv("cors_list"); !found {
+		return nil, EnvironmentMisconfiguredError("cors_list is undefined")
 	}
-	secretKey, found := os.LookupEnv("secret_key")
-	if !found {
-		return nil, errors.New("secret_key is undefined")
+
+	if secretKey, found = os.LookupEnv("secret_key"); !found {
+		return nil, EnvironmentMisconfiguredError("secret_key is undefined")
 	}
-	config := NewAPIDeploymentConfiguration(appName, image, secretsStore, corsList, secretKey)
+
+	if containerPortEnv, found = os.LookupEnv("container_port"); found {
+		if tmp, err := strconv.Atoi(containerPortEnv); err == nil {
+			containerPort = tmp
+		} else {
+			return nil, ErrNotAValidPort
+		}
+	}
+
+	config := NewAPIDeploymentConfiguration(appName, image, secretsStore, corsList, secretKey, containerPort)
+
 	return &config, nil
 }
 
-func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMap, config APIDeploymentConfiguration) error {
+func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMapInput, config APIDeploymentConfiguration) error {
 	_, err := appsv1.NewDeployment(ctx, "digitaldexapi-deployment", &appsv1.DeploymentArgs{
 		Spec: appsv1.DeploymentSpecArgs{
 			Selector: &metav1.LabelSelectorArgs{
@@ -72,7 +92,7 @@ func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMap, config AP
 							ImagePullPolicy: pulumi.String("Always"),
 							Ports: &corev1.ContainerPortArray{
 								corev1.ContainerPortArgs{
-									ContainerPort: pulumi.Int(8080),
+									ContainerPort: pulumi.Int(config.ContainerPort),
 								},
 							},
 							Env: &corev1.EnvVarArray{
@@ -123,5 +143,6 @@ func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMap, config AP
 			},
 		},
 	})
-	return err
+
+	return fmt.Errorf("failed to deploy api: %w", err)
 }
