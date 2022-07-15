@@ -105,6 +105,7 @@ linters:
     - wsl
 
 severity:
+  default-severity: error
   rules:
     - linters:
       - godox
