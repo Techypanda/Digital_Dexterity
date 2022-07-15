@@ -153,5 +153,9 @@ func NewAPIDeployment(ctx *pulumi.Context, appLabels pulumi.StringMapInput, conf
 		},
 	})
 
-	return fmt.Errorf("failed to deploy api: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to deploy api: %w", err)
+	}
+
+	return nil
 }
