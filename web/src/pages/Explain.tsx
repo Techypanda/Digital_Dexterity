@@ -1,10 +1,10 @@
-import { Typography } from "@mui/material";
-import { CommonProps } from "@mui/material/OverridableComponent";
+import {Typography} from '@mui/material';
+import {CommonProps} from '@mui/material/OverridableComponent';
 
 export function Explain(props: CommonProps) {
   return (
     <>
-      <Typography variant="h4" sx={{ mt: 2 }}>Digital Dexterity</Typography>
+      <Typography variant="h4" sx={{mt: 2}}>Digital Dexterity</Typography>
       <Typography variant="h6">Willingness To Learn</Typography>
       <Typography variant="subtitle2">How willing are they to learn about a new technology/technique that may or may not effect their life</Typography>
       <Typography variant="h6">Self Sufficient Learning</Typography>
@@ -26,7 +26,7 @@ export function Explain(props: CommonProps) {
       </Typography>
       <Typography variant="h6">Awareness Of Self Efficacy</Typography>
       <Typography variant="subtitle2">
-        Self-efficacy refers to an individual's belief in his or her capacity to execute behaviors necessary to produce specific performance attainments (Bandura, 1977, 1986, 1997). Self-efficacy reflects confidence in the ability to exert control over one's own motivation, behavior, and social environment.
+        Self-efficacy refers to an individual&apos;s belief in his or her capacity to execute behaviors necessary to produce specific performance attainments (Bandura, 1977, 1986, 1997). Self-efficacy reflects confidence in the ability to exert control over one&apos;s own motivation, behavior, and social environment.
       </Typography>
       <Typography variant="h6">Applying What They Learn</Typography>
       <Typography variant="subtitle2">
@@ -37,5 +37,5 @@ export function Explain(props: CommonProps) {
         Can they change how they act/behave and/or can they improve based on circumstances that are thrown at them.
       </Typography>
     </>
-  )
+  );
 }

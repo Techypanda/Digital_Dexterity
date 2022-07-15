@@ -7,15 +7,15 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Radar } from "react-chartjs-2";
+import {Radar} from 'react-chartjs-2';
 
 ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend,
 );
 
 export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[], selfAssessment?: Assessment }) {
@@ -28,7 +28,7 @@ export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[
       GrowthMindset: 0,
       AwarenessOfSelfEfficacy: 0,
       ApplyingWhatTheyLearn: 0,
-      Adaptability: 0
+      Adaptability: 0,
     };
     if (props.externalAssessments) {
       for (const assess of props.externalAssessments) {
@@ -51,7 +51,7 @@ export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[
       avg.WillingnessToLearn /= props.externalAssessments.length;
     }
     return [avg.Adaptability, avg.ApplyingWhatTheyLearn, avg.AwarenessOfSelfEfficacy, avg.GrowthMindset, avg.ImprovingCapability, avg.InnovativeThinking, avg.SelfSufficientLearning, avg.WillingnessToLearn];
-  }
+  };
   function getDatasets() {
     const datasets = [];
     if (props.selfAssessment) {
@@ -62,7 +62,7 @@ export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgb(54, 162, 235)',
         borderWidth: 1,
-      })
+      });
     }
     if (props.externalAssessments) {
       datasets.push({
@@ -71,7 +71,7 @@ export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
-      })
+      });
     }
     return datasets;
   }
@@ -86,9 +86,9 @@ export function DigitalDexterityGraph(props: { externalAssessments?: Assessment[
           r: {
             min: 0,
             max: 100,
-          } 
-        }
+          },
+        },
       }}
     />
-  )
+  );
 }
