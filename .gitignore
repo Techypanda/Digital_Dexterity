@@ -1,3 +1,4 @@
 cmd/api/api
 .env
 node_modules
+powershell.env

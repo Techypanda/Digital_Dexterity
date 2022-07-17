@@ -9,7 +9,6 @@ services:
       - web:/app/web
     environment:
       - ENTR_INOTIFY_WORKAROUND=TRUE
-      - cors_list=http://localhost:3000
     env_file:
       - .env
     command: ['/app/cmd/api/hotReload.sh']
@@ -32,6 +31,16 @@ services:
       - web:/app/web
     working_dir: /app
     command: ['./lint.sh']
+  kubernetes:
+    profiles: ["kube"]
+    build:
+      context: .
+      dockerfile: Dockerfile.pulumi
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - web:/app/web
 volumes:
   nodemodules: {} # Ignore local node modules
   web: {} # Ignore web
