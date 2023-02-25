@@ -16,10 +16,8 @@ require (
 	github.com/swaggo/echo-swagger v1.3.3
 	github.com/swaggo/swag v1.8.3
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/net v0.0.0-20220630215102-69896b714898 // indirect
-	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
-	golang.org/x/tools v0.1.11 // indirect
 	gorm.io/driver/mysql v1.3.4
 	gorm.io/gorm v1.23.7
 )
